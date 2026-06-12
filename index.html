@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; background: #ffffff; color: #2C2C2A; padding: 2rem 2.5rem 2rem; max-width: 1020px; margin: 0 auto; }
+@media (prefers-color-scheme: dark) { body { background: #1a1a1a; color: #e0e0e0; } }
+.tab-bar { display: flex; gap: 0; margin-bottom: 1.6rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.tab-btn { padding: 10px 28px; font-size: 14px; font-weight: 500; color: #888780; background: none; border: none; cursor: pointer; border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s; }
+.tab-btn:hover { color: #5F5E5A; }
+.tab-btn.active { color: #2C2C2A; border-bottom-color: #2C2C2A; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* === Tab 1 styles === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: #ffffff;
+  color: #2C2C2A;
+  padding: 2rem 2.5rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+@media (prefers-color-scheme: dark) {
+  body { background: #1a1a1a; color: #e0e0e0; }
+}
+
+h1 {
+  font-size: 16px;
+  font-weight: 500;
+  color: #2C2C2A;
+  margin-bottom: 1.8rem;
+}
+@media (prefers-color-scheme: dark) {
+  h1 { color: #e0e0e0; }
+}
+
+/* ── 流程轨道 ── */
+.flow-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+  margin-bottom: 0;
+}
+
+/* 节点包装 */
+.node-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* 连接箭头区域 */
+.arrow-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  flex-shrink: 0;
+  padding-top: 22px;
+}
+.arrow-line {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.arrow-line svg {
+  width: 40px;
+  height: 18px;
+}
+
+/* 主节点卡片 */
+.node-card {
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.node-card:hover {
+  box-shadow: 0 3px 14px rgba(0,0,0,0.08);
+}
+.node-card.active {
+  box-shadow: 0 3px 16px rgba(0,0,0,0.1);
+}
+
+/* 节点配色方案 */
+.node-card.purple .node-header { background: #534AB7; }
+.node-card.purple .node-header .step-num { background: rgba(255,255,255,0.2); color: #fff; }
+.node-card.purple.active { border-color: #534AB7; }
+
+.node-card.teal .node-header { background: #1D9E75; }
+.node-card.teal .node-header .step-num { background: rgba(255,255,255,0.2); color: #fff; }
+.node-card.teal.active { border-color: #1D9E75; }
+
+.node-card.coral .node-header { background: #D85A30; }
+.node-card.coral .node-header .step-num { background: rgba(255,255,255,0.2); color: #fff; }
+.node-card.coral.active { border-color: #D85A30; }
+
+.node-header {
+  padding: 10px 14px 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.step-num {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.node-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  line-height: 1.3;
+}
+.node-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,0.8);
+  margin-top: 2px;
+}
+
+.node-body {
+  background: #F7F6F2;
+  padding: 11px 14px 12px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+@media (prefers-color-scheme: dark) {
+  .node-body { background: #252525; border-top-color: rgba(255,255,255,0.08); }
+}
+
+.pain-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.purple .pain-tag { background: #EEEDFE; color: #3C3489; }
+.teal   .pain-tag { background: #E1F5EE; color: #0F6E56; }
+.coral  .pain-tag { background: #FAECE7; color: #993C1D; }
+
+.pain-text {
+  font-size: 12px;
+  color: #5F5E5A;
+  line-height: 1.6;
+}
+@media (prefers-color-scheme: dark) {
+  .pain-text { color: #a0a0a0; }
+}
+
+/* 展开详情面板 */
+.detail-panel {
+  margin-top: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+}
+.detail-panel.hidden { display: none; }
+@media (prefers-color-scheme: dark) {
+  .detail-panel { background: #2a2a2a; border-color: rgba(255,255,255,0.1); }
+}
+
+.detail-inner {
+  padding: 16px 18px 18px;
+}
+
+.detail-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #888780;
+  margin-bottom: 12px;
+}
+
+.solution-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #FAF9F6;
+}
+.solution-item:last-child { margin-bottom: 0; }
+@media (prefers-color-scheme: dark) {
+  .solution-item { background: #2d2d2d; }
+}
+
+.sol-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+.purple .sol-dot { background: #534AB7; }
+.teal   .sol-dot { background: #1D9E75; }
+.coral  .sol-dot { background: #D85A30; }
+
+.sol-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #2C2C2A;
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+@media (prefers-color-scheme: dark) {
+  .sol-title { color: #e0e0e0; }
+}
+
+.sol-desc {
+  font-size: 12.5px;
+  color: #5F5E5A;
+  line-height: 1.7;
+}
+@media (prefers-color-scheme: dark) {
+  .sol-desc { color: #a0a0a0; }
+}
+
+/* 节点底部的展开提示 */
+.expand-hint {
+  text-align: center;
+  font-size: 10px;
+  color: #B4B2A9;
+  margin-top: 8px;
+  transition: color 0.15s;
+}
+.node-wrap:hover .expand-hint { color: #888780; }
+
+/* === Tab 2 styles === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background: #ffffff;
+  color: #2C2C2A;
+  padding: 2rem 2.5rem 1.2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+h1 { font-size: 17px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
+.subtitle { font-size: 12px; color: #888780; margin-bottom: 1.5rem; }
+
+
+/* ── 4-column grid ── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1.8fr;
+  gap: 10px;
+  align-items: start;
+}
+
+/* phase column */
+.phase-col { display: flex; flex-direction: column; gap: 0; }
+
+/* phase header */
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px 8px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+.phase-num {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* steps stack inside a column */
+.steps-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 0 0 8px 8px;
+  border: 1.5px solid rgba(0,0,0,0.06);
+  border-top: none;
+}
+
+.step-card {
+  background: #fff;
+  border-radius: 7px;
+  padding: 9px 11px;
+  font-size: 11.5px;
+  color: #5F5E5A;
+  line-height: 1.5;
+  cursor: pointer;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.step-card:hover { border-color: rgba(0,0,0,0.18); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.step-card.active { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+
+.step-title {
+  font-size: 12.5px; font-weight: 500; color: #2C2C2A;
+  margin-bottom: 3px;
+  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
+}
+.step-badge {
+  font-size: 9.5px; font-weight: 500;
+  padding: 1px 5px; border-radius: 8px; flex-shrink: 0;
+}
+
+/* connector arrow between phases */
+.arrow-col {
+  display: flex; align-items: center; justify-content: center;
+  padding-top: 18px;
+}
+
+/* ── contribution section ── */
+.contrib-label {
+  font-size: 11px; color: #B4B2A9; text-align: center;
+  margin: 14px 0 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.contrib-label::before, .contrib-label::after {
+  content: ''; flex: 1; height: 0.5px; background: rgba(0,0,0,0.1);
+}
+
+.contrib-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1.8fr;
+  gap: 10px;
+}
+
+.contrib-card {
+  background: #fff;
+  border: 1.5px solid #D1D3D8;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11.5px;
+  color: #5F5E5A;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  line-height: 1.5;
+}
+.contrib-card:hover { border-color: #B0B3B8; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.contrib-card.active { border-color: #8A8D92; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.contrib-title {
+  font-size: 12px; font-weight: 500; color: #2C2C2A;
+  margin-bottom: 3px;
+  display: flex; align-items: center; gap: 5px;
+}
+.contrib-title::before { content: '★'; font-size: 10px; color: #B4B2A9; }
+
+/* ── detail panel ── */
+.detail-panel {
+  margin-top: 14px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  padding: 1.1rem 1.3rem;
+  background: #fff;
+  transition: opacity 0.2s;
+}
+.detail-panel.hidden { display: none; }
+.detail-title {
+  font-size: 14px; font-weight: 500; color: #2C2C2A;
+  margin-bottom: 9px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.detail-tag {
+  font-size: 10.5px; padding: 2px 8px; border-radius: 10px; font-weight: 400;
+}
+.detail-body { font-size: 12.5px; color: #5F5E5A; line-height: 1.7; }
+.detail-body ul { list-style: none; padding: 0; }
+.detail-body ul li { padding: 2px 0 2px 13px; position: relative; }
+.detail-body ul li::before { content: '·'; position: absolute; left: 0; font-weight: 700; color: #B4B2A9; }
+.detail-body .hl { font-weight: 500; color: #2C2C2A; }
+
+@media (prefers-color-scheme: dark) {
+  body { background: #1a1a1a; color: #e0e0e0; }
+  h1 { color: #e0e0e0; }
+  .step-card { background: #2a2a2a; border-color: rgba(255,255,255,0.08); color: #a0a0a0; }
+  .step-card .step-title { color: #e0e0e0; }
+  .steps-stack { border-color: rgba(255,255,255,0.06); }
+  .detail-panel { background: #222; border-color: rgba(255,255,255,0.12); }
+  .detail-title { color: #e0e0e0; }
+  .detail-body { color: #a0a0a0; }
+  .detail-body .hl { color: #e0e0e0; }
+  .contrib-label::before, .contrib-label::after { background: rgba(255,255,255,0.08); }
+  .contrib-label { color: #555; }
+}
+</style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab(1,this)">数据分析 AI 提效</button>
+  <button class="tab-btn" onclick="switchTab(2,this)">大模型事件定义</button>
+</div>
+
+<div class="tab-content active" id="tab1">
+<h1>数据分析 AI 提效</h1>
+
+<div class="flow-track" id="flowTrack">
+
+  <!-- 节点1：数据获取 -->
+  <div class="node-wrap">
+    <div class="node-card purple" id="card-0" onclick="toggle(0)">
+      <div class="node-header">
+        <div class="step-num">01</div>
+        <div>
+          <div class="node-title">数据获取</div>
+          <div class="node-subtitle">SQL 取数流程</div>
+        </div>
+      </div>
+      <div class="node-body">
+        <div class="pain-tag">核心难点</div>
+        <div class="pain-text">数据表权限申请繁琐，流程长、等待成本高</div>
+      </div>
+    </div>
+    <div class="detail-panel hidden" id="detail-0">
+      <div class="detail-inner">
+        <div class="detail-label">解决方案</div>
+        <div class="solution-item">
+          <div class="sol-dot purple"></div>
+          <div>
+            <div class="sol-title">NoCode API 绕过表权限</div>
+            <div class="sol-desc">通过接入 NoCode 取数能力，业务方无需逐一申请数据表权限，直接调用封装好的 API 接口完成取数，大幅降低数据获取门槛。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="expand-hint" id="hint-0">点击展开解决方案 ↓</div>
+  </div>
+
+  <!-- 箭头1 -->
+  <div class="arrow-col">
+    <div class="arrow-line">
+      <svg viewBox="0 0 40 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="2" y1="9" x2="31" y2="9" stroke="#B4B2A9" stroke-width="1.2"/>
+        <path d="M28 5L34 9L28 13" stroke="#B4B2A9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 节点2：归因分析 -->
+  <div class="node-wrap">
+    <div class="node-card teal" id="card-1" onclick="toggle(1)">
+      <div class="node-header">
+        <div class="step-num">02</div>
+        <div>
+          <div class="node-title">归因分析</div>
+          <div class="node-subtitle">数据切片分析</div>
+        </div>
+      </div>
+      <div class="node-body">
+        <div class="pain-tag">核心难点</div>
+        <div class="pain-text">数据量大时大模型耗时长、token 消耗高</div>
+      </div>
+    </div>
+    <div class="detail-panel hidden" id="detail-1">
+      <div class="detail-inner">
+        <div class="detail-label">解决方案</div>
+        <div class="solution-item">
+          <div class="sol-dot teal"></div>
+          <div>
+            <div class="sol-title">正则预处理 + 大模型二次分析</div>
+            <div class="sol-desc">先用正则表达式完成结构化切片，过滤无效数据后再送入大模型，显著降低单次调用的 token 消耗与响应时延。</div>
+          </div>
+        </div>
+        <div class="solution-item">
+          <div class="sol-dot teal"></div>
+          <div>
+            <div class="sol-title">增加缓存命中机制</div>
+            <div class="sol-desc">7 天内相同数据查询命中缓存，无需重新拉取和重新分析，兼顾时效性与资源节约。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="expand-hint" id="hint-1">点击展开解决方案 ↓</div>
+  </div>
+
+  <!-- 箭头2 -->
+  <div class="arrow-col">
+    <div class="arrow-line">
+      <svg viewBox="0 0 40 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="2" y1="9" x2="31" y2="9" stroke="#B4B2A9" stroke-width="1.2"/>
+        <path d="M28 5L34 9L28 13" stroke="#B4B2A9" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- 节点3：指标监控 -->
+  <div class="node-wrap">
+    <div class="node-card coral" id="card-2" onclick="toggle(2)">
+      <div class="node-header">
+        <div class="step-num">03</div>
+        <div>
+          <div class="node-title">指标监控</div>
+          <div class="node-subtitle">数据异动监测</div>
+        </div>
+      </div>
+      <div class="node-body">
+        <div class="pain-tag">核心难点</div>
+        <div class="pain-text">仅有感知层（阈值触发告警），缺乏原因解释能力</div>
+      </div>
+    </div>
+    <div class="detail-panel hidden" id="detail-2">
+      <div class="detail-inner">
+        <div class="detail-label">解决方案</div>
+        <div class="solution-item">
+          <div class="sol-dot coral"></div>
+          <div>
+            <div class="sol-title">引入 Agent 规划层，输出归因假设</div>
+            <div class="sol-desc">从单纯感知异动升级为自动诊断——Agent 下钻拆解、关联上下文、匹配历史案例，将"客诉量 +30%"转化为带置信度排序的可验证假设。</div>
+          </div>
+        </div>
+        <div class="solution-item">
+          <div class="sol-dot coral"></div>
+          <div>
+            <div class="sol-title">Prompt 工程内置排除法推理框架</div>
+            <div class="sol-desc">逐步排除伪异动 → 判断局部/系统问题 → 关联近期策略上线事件 → 输出假设列表，每条附验证方法，把人从"信息处理"解放为"决策确认"。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="expand-hint" id="hint-2">点击展开解决方案 ↓</div>
+  </div>
+
+</div>
+</div>
+
+<div class="tab-content" id="tab2">
+<h1>大模型事件定义</h1>
+
+
+<div class="main-grid" id="mainGrid"></div>
+
+<div class="contrib-label">我的核心决策点</div>
+<div class="contrib-grid" id="contribGrid"></div>
+
+<div class="detail-panel hidden" id="detailPanel">
+  <div class="detail-title" id="detailTitle"></div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+</div>
+
+<script>
+// === Tab switch ===
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('tab1').classList.toggle('active', tab === 1);
+  document.getElementById('tab2').classList.toggle('active', tab === 2);
+  if (tab === 2) { initTab2(); }
+}
+
+// === Tab1 logic ===
+const total = 3;
+let activeIdx = -1;
+
+function toggle(idx) {
+  const detail = document.getElementById('detail-' + idx);
+  const card   = document.getElementById('card-'   + idx);
+  const hint   = document.getElementById('hint-'   + idx);
+
+  if (activeIdx === idx) {
+    detail.classList.add('hidden');
+    card.classList.remove('active');
+    hint.textContent = '点击展开解决方案 ↓';
+    activeIdx = -1;
+  } else {
+    if (activeIdx !== -1) {
+      document.getElementById('detail-' + activeIdx).classList.add('hidden');
+      document.getElementById('card-'   + activeIdx).classList.remove('active');
+      document.getElementById('hint-'   + activeIdx).textContent = '点击展开解决方案 ↓';
+    }
+    detail.classList.remove('hidden');
+    card.classList.add('active');
+    hint.textContent = '点击收起 ↑';
+    activeIdx = idx;
+  }
+}
+
+// === Tab2 logic (lazy init) ===
+let _tab2Inited = false;
+function initTab2() {
+  if (_tab2Inited) return;
+  _tab2Inited = true;
+  (function() {
+const PHASES = [
+  {
+    id:'p1', label:'事件定义', num:1,
+    color:'#534AB7', bg:'#EEEDFE', textColor:'#3C3489', lightBg:'#F7F6FF',
+    steps:[
+      {
+        id:'s1', title:'数据回收', tool:null,
+        desc:'收集客服对话与用户反馈，整理为可用的原始数据文件（xlsx）',
+        detail:{
+          title:'第 1 步：数据回收',
+          tag:'事件定义', tagBg:'#EEEDFE', tagColor:'#3C3489',
+          body:`<ul>
+            <li>从业务侧收集客服对话、用户反馈等原始语料</li>
+            <li>整理标准 xlsx 格式，包含文本内容与初步事件标签</li>
+            <li>是整条迭代链路的<span class="hl">起点</span>，决定后续工具的数据质量上限</li>
+          </ul>`
+        }
+      }
+    ]
+  },
+  {
+    id:'p2', label:'数据标注', num:2,
+    color:'#1D9E75', bg:'#E1F5EE', textColor:'#0F6E56', lightBg:'#F2FBF8',
+    steps:[
+      {
+        id:'s2', title:'数据处理', tool:'BuildDatasetTool',
+        desc:'按分析结论构建增强训练/验证/测试集，三种策略按情况选择',
+        detail:{
+          title:'第 2 步：数据处理（BuildDatasetTool）',
+          tag:'数据标注', tagBg:'#E1F5EE', tagColor:'#0F6E56',
+          body:`<ul>
+            <li>输入：基础数据版本 + 目标事件 + 样本数 + 增强策略</li>
+            <li><span class="hl">add_uncovered</span>：有新数据 + 覆盖度低 → 定向补缺口</li>
+            <li><span class="hl">new_source_extract</span>：有新数据 + FP 为主 → 随机扩充</li>
+            <li><span class="hl">oversampling</span>：无新数据 → 过采样兜底</li>
+            <li>输出：增强后的训练集 / 验证集 / 测试集</li>
+          </ul>`
+        }
+      }
+    ]
+  },
+  {
+    id:'p3', label:'模型训练', num:3,
+    color:'#D85A30', bg:'#FAECE7', textColor:'#712B13', lightBg:'#FEF6F4',
+    steps:[
+      {
+        id:'s3', title:'模型训练', tool:'TrainModelTool',
+        desc:'使用增强数据集训练新版本，支持 dpcnn / bert / bge-m3',
+        detail:{
+          title:'第 3 步：模型训练（TrainModelTool）',
+          tag:'模型训练', tagBg:'#FAECE7', tagColor:'#712B13',
+          body:`<ul>
+            <li>支持 TensorFlow（dpcnn）和 PyTorch（bge-m3 / bert）</li>
+            <li>关键参数：epochs / batch_size / learning_rate / gpu_ids</li>
+            <li>max_len 可自动计算（训练集文本长度 95 分位数）</li>
+            <li>输出：训练好的模型文件，进入评测阶段</li>
+          </ul>`
+        }
+      }
+    ]
+  },
+  {
+    id:'p4', label:'评测验证', num:4,
+    color:'#5B9BD5', bg:'#D6E9F5', textColor:'#2A5A8C', lightBg:'#F0F7FF',
+    steps:[
+      {
+        id:'s4', title:'模型评测', tool:'EvaluateModelTool',
+        desc:'跑 F1/Precision/Recall，找出未达标事件，搜索最优分类阈值',
+        detail:{
+          title:'第 4 步：模型评测（EvaluateModelTool）',
+          tag:'评测验证', tagBg:'#D6E9F5', tagColor:'#2A5A8C',
+          body:`<ul>
+            <li>输入：模型版本 + 测试数据版本</li>
+            <li>搜索每个事件的最优分类阈值</li>
+            <li>输出：Excel 评测报告 + 未达标事件列表（F1 &lt; 目标阈值）</li>
+          </ul>`
+        }
+      },
+      {
+        id:'s5', title:'错误分析', tool:'AnalyzeCasesTool',
+        desc:'FN/FP 统计、置信度分布、训练集覆盖度、标签混淆模式',
+        detail:{
+          title:'第 5 步：错误分析（AnalyzeCasesTool）',
+          tag:'评测验证', tagBg:'#D6E9F5', tagColor:'#2A5A8C',
+          body:`<ul>
+            <li>FN（漏报）/ FP（误报）数量统计</li>
+            <li>置信度分布：极低 / 低 / 中 / 高 / 极高 五档</li>
+            <li>训练集覆盖度：语义相似度匹配，判断出错样本是否被训练集覆盖</li>
+            <li>标签混淆模式：该事件最常被误判为哪些其他事件</li>
+            <li>输出<span class="hl">改进建议</span>，直接驱动数据增强策略选择</li>
+          </ul>`
+        }
+      },
+      {
+        id:'s6', title:'版本对比', tool:'CompareVersionsTool',
+        desc:'对比新旧版本 F1 变化和达标事件数，决策是否上线',
+        detail:{
+          title:'第 6 步：版本对比（CompareVersionsTool）',
+          tag:'评测验证', tagBg:'#D6E9F5', tagColor:'#2A5A8C',
+          body:`<ul>
+            <li>输入：基线版本号 + 新版本号 + 测试数据版本</li>
+            <li>输出：F1 变化量、达标事件数变化、混淆模式对比</li>
+            <li>支持 Excel / Markdown / JSON 三种报告格式</li>
+            <li>结论用于决策是否上线本轮迭代结果</li>
+          </ul>`
+        }
+      }
+    ]
+  }
+];
+
+const CONTRIBS = [
+  {
+    id:'c1', title:'事件边界重标注',
+    desc:'发现混淆根源在事件定义模糊，主动逐条确认，推动重新标注',
+    detail:{
+      title:'难点一：事件定义模糊导致 FP 居高不下',
+      tag:'', tagBg:'#FBEAF0', tagColor:'#72243E',
+      body:`<ul>
+        <li><span class="hl">问题</span>：AnalyzeCasesTool 显示某事件大量 FP，混淆矩阵指向相邻事件</li>
+        <li><span class="hl">算法的本能</span>：调阈值、加数据、改模型结构</li>
+        <li><span class="hl">我的判断</span>：根源是"咨询会员活动结果"与"奖励发放咨询"业务边界本就模糊，真实对话里两者高度重叠</li>
+        <li><span class="hl">我的行动</span>：主动拿出高频误判样本逐条确认业务归类，给出哪类样本应重新标注的明确结论</li>
+        <li>避免算法在错误事件定义上反复训练，<span class="hl">节省了 1~2 轮无效迭代</span></li>
+      </ul>`
+    }
+  },
+  {
+    id:'c2', title:'数据供给优先级规划',
+    desc:'覆盖度不足时，提前排定标注顺序，让增强策略不卡在数据等待',
+    detail:{
+      title:'难点二：训练集覆盖度低',
+      tag:'', tagBg:'#FBEAF0', tagColor:'#72243E',
+      body:`<ul>
+        <li><span class="hl">卡点</span>：AnalyzeCasesTool 输出覆盖度 40%，add_uncovered 需要新数据才能生效，而新数据何时到来算法无法推进</li>
+        <li><span class="hl">我的行动</span>：在等数据的窗口期，主动梳理覆盖度最低、业务优先级最高的事件列表，提前排好标注顺序</li>
+        <li>实质上做的是<span class="hl">数据供给侧资源规划</span>，不只是收数据</li>
+        <li>让迭代周期在数据交付环节不空转，<span class="hl">缩短等待时间约 30%</span></li>
+      </ul>`
+    }
+  },
+  {
+    id:'c3', title:'参数决策兜底判断',
+    desc:'训练参数异常时，结合业务目标给出优先级判断，不让算法自己猜',
+    detail:{
+      title:'难点三：训练异常时的业务优先级兜底',
+      tag:'', tagBg:'#FBEAF0', tagColor:'#72243E',
+      body:`<ul>
+        <li><span class="hl">场景</span>：某轮训练因数据量差异大，高频事件过拟合，低频事件 F1 下降</li>
+        <li><span class="hl">算法视角</span>：调整 batch_size 或 class_weight</li>
+        <li><span class="hl">我的贡献</span>：给出哪些低频事件在业务上是高优先级的，不能因样本少就让 F1 下降</li>
+        <li>让参数调整方向与<span class="hl">业务目标对齐</span>，而不只是追求整体指标</li>
+      </ul>`
+    }
+  },
+  {
+    id:'c4', title:'上线决策 & 经验沉淀',
+    desc:'把 F1 变化翻译为业务影响，建立优先级标准；推动迭代经验跨专项复用',
+    detail:{
+      title:'难点四：上线决策 + 经验沉淀',
+      tag:'', tagBg:'#FBEAF0', tagColor:'#72243E',
+      body:`<ul>
+        <li><span class="hl">上线决策</span>：把 F1 +1.35pp 翻译为哪个业务场景识别率提升、影响多少工单量</li>
+        <li>建立判断标准：<span class="hl">高频强依赖 > 低频边缘事件</span>，按优先级取舍，加速上线节奏</li>
+        <li><span class="hl">经验沉淀</span>：每轮迭代后，将业务侧结论推动写入记忆系统，避免下个专项重走弯路</li>
+        <li>主动推动跨专项对齐：将美团会员专项经验分享给医美医疗专项，<span class="hl">帮助规避同类坑</span></li>
+      </ul>`
+    }
+  }
+];
+
+// ── render main grid ──
+const mainGrid = document.getElementById('mainGrid');
+PHASES.forEach(p => {
+  const col = document.createElement('div');
+  col.className = 'phase-col';
+
+  // header
+  const hdr = document.createElement('div');
+  hdr.className = 'phase-header';
+  hdr.style.background = p.bg;
+  hdr.style.color = p.textColor;
+  hdr.innerHTML = `<span class="phase-num" style="color:${p.color};">${p.num}</span>${p.label}`;
+  col.appendChild(hdr);
+
+  // steps stack
+  const stack = document.createElement('div');
+  stack.className = 'steps-stack';
+  stack.style.background = p.lightBg;
+
+  p.steps.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'step-card';
+    card.innerHTML = `
+      <div class="step-title">
+        ${s.title}
+        ${s.tool ? `<span class="step-badge" style="background:${p.bg};color:${p.textColor};">${s.tool}</span>` : ''}
+      </div>
+      <div style="font-size:11px;color:#888780;line-height:1.5;">${s.desc}</div>
+    `;
+    card.addEventListener('click', () => showDetail(s.detail, card));
+    stack.appendChild(card);
+  });
+
+  col.appendChild(stack);
+  mainGrid.appendChild(col);
+});
+
+// ── render contrib grid ──
+const contribGrid = document.getElementById('contribGrid');
+CONTRIBS.forEach(c => {
+  const card = document.createElement('div');
+  card.className = 'contrib-card';
+  card.innerHTML = `
+    <div class="contrib-title">${c.title}</div>
+    <div style="font-size:11px;color:#888780;line-height:1.5;">${c.desc}</div>
+  `;
+  card.addEventListener('click', () => showDetail(c.detail, card));
+  contribGrid.appendChild(card);
+});
+
+// ── detail panel ──
+let activeCard = null;
+function showDetail(data, card) {
+  const panel = document.getElementById('detailPanel');
+  const titleEl = document.getElementById('detailTitle');
+  const bodyEl = document.getElementById('detailBody');
+
+  if (activeCard === card) {
+    panel.classList.add('hidden');
+    card.classList.remove('active');
+    activeCard = null;
+    return;
+  }
+  if (activeCard) activeCard.classList.remove('active');
+  activeCard = card;
+  card.classList.add('active');
+
+  titleEl.innerHTML = `${data.title}<span class="detail-tag" style="background:${data.tagBg};color:${data.tagColor};">${data.tag}</span>`;
+  bodyEl.innerHTML = data.body;
+  panel.classList.remove('hidden');
+  setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+}
+  })();
+}
+</script>
+</body>
+</html>
