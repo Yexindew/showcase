@@ -548,7 +548,7 @@ h1 { font-size: 17px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
 
 <div class="main-grid" id="mainGrid"></div>
 
-<div class="contrib-label">我的核心决策点</div>
+<div class="contrib-label">定义事件边界 · 判断数据优先级 · 做上线决策</div>
 <div class="contrib-grid" id="contribGrid"></div>
 
 <div class="detail-panel hidden" id="detailPanel">
@@ -713,7 +713,7 @@ const PHASES = [
 
 const CONTRIBS = [
   {
-    id:'c1', title:'事件边界重标注',
+    id:'c1', title:'定义事件边界',
     desc:'发现混淆根源在事件定义模糊，主动逐条确认，推动重新标注',
     detail:{
       title:'难点一：事件定义模糊导致 FP 居高不下',
@@ -728,7 +728,7 @@ const CONTRIBS = [
     }
   },
   {
-    id:'c2', title:'数据供给优先级规划',
+    id:'c2', title:'判断数据优先级',
     desc:'覆盖度不足时，提前排定标注顺序，让增强策略不卡在数据等待',
     detail:{
       title:'难点二：训练集覆盖度低',
@@ -742,24 +742,10 @@ const CONTRIBS = [
     }
   },
   {
-    id:'c3', title:'参数决策兜底判断',
-    desc:'训练参数异常时，结合业务目标给出优先级判断，不让算法自己猜',
-    detail:{
-      title:'难点三：训练异常时的业务优先级兜底',
-      tag:'', tagBg:'#FBEAF0', tagColor:'#72243E',
-      body:`<ul>
-        <li><span class="hl">场景</span>：某轮训练因数据量差异大，高频事件过拟合，低频事件 F1 下降</li>
-        <li><span class="hl">算法视角</span>：调整 batch_size 或 class_weight</li>
-        <li><span class="hl">我的贡献</span>：给出哪些低频事件在业务上是高优先级的，不能因样本少就让 F1 下降</li>
-        <li>让参数调整方向与<span class="hl">业务目标对齐</span>，而不只是追求整体指标</li>
-      </ul>`
-    }
-  },
-  {
-    id:'c4', title:'上线决策 & 经验沉淀',
+    id:'c3', title:'做上线决策',
     desc:'把 F1 变化翻译为业务影响，建立优先级标准；推动迭代经验跨专项复用',
     detail:{
-      title:'难点四：上线决策 + 经验沉淀',
+      title:'难点三：上线决策 + 经验沉淀',
       tag:'', tagBg:'#FBEAF0', tagColor:'#72243E',
       body:`<ul>
         <li><span class="hl">上线决策</span>：把 F1 +1.35pp 翻译为哪个业务场景识别率提升、影响多少工单量</li>
