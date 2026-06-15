@@ -241,6 +241,46 @@ h1 {
 }
 .node-wrap:hover .expand-hint { color: #888780; }
 
+/* ── case section ── */
+.case-section {
+  margin-top: 20px;
+}
+.case-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #5F5E5A;
+  cursor: pointer;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  user-select: none;
+}
+.case-toggle:hover { border-color: rgba(0,0,0,0.22); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.case-toggle .arrow { font-size: 10px; color: #B4B2A9; transition: transform 0.2s; }
+.case-toggle.open .arrow { transform: rotate(180deg); }
+.case-body {
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(0,0,0,0.08);
+  background: #fff;
+  overflow: hidden;
+  display: none;
+}
+.case-body.open { display: block; }
+.case-body img {
+  width: 100%;
+  display: block;
+  border-radius: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  .case-toggle { background: #2a2a2a; border-color: rgba(255,255,255,0.1); color: #a0a0a0; }
+  .case-body { background: #2a2a2a; border-color: rgba(255,255,255,0.1); }
+}
+
 /* === Tab 2 styles === */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -539,6 +579,14 @@ h1 { font-size: 17px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
   </div>
 
 </div>
+
+<div class="case-section">
+  <button class="case-toggle" id="caseToggle" onclick="toggleCase()">查看实际案例 <span class="arrow">▼</span></button>
+  <div class="case-body" id="caseBody">
+    <img src="https://s3plus-bj02.vip.sankuai.com/openclaw/pde/showcase-demo.gif" alt="到餐体验周报对比案例" />
+  </div>
+</div>
+
 </div>
 
 <div class="tab-content" id="tab2">
@@ -556,6 +604,14 @@ h1 { font-size: 17px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
 </div>
 
 <script>
+// === Case toggle ===
+function toggleCase() {
+  var btn = document.getElementById('caseToggle');
+  var body = document.getElementById('caseBody');
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
 // === Tab switch ===
 function switchTab(tab, el) {
   document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
