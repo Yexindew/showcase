@@ -587,6 +587,13 @@ h1 { font-size: 17px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
   </div>
 </div>
 
+<div class="case-section">
+  <button class="case-toggle" id="caseToggle2" onclick="toggleCase2()">DataDiver 对话演示 <span class="arrow">▼</span></button>
+  <div class="case-body" id="caseBody2">
+    <img src="https://raw.githubusercontent.com/Yexindew/showcase/main/datadiver-demo.gif" alt="DataDiver 数据分析对话案例" />
+  </div>
+</div>
+
 </div>
 
 <div class="tab-content" id="tab2">
@@ -608,6 +615,13 @@ h1 { font-size: 17px; font-weight: 500; color: #2C2C2A; margin-bottom: 4px; }
 function toggleCase() {
   var btn = document.getElementById('caseToggle');
   var body = document.getElementById('caseBody');
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+function toggleCase2() {
+  var btn = document.getElementById('caseToggle2');
+  var body = document.getElementById('caseBody2');
   btn.classList.toggle('open');
   body.classList.toggle('open');
 }
